@@ -1,24 +1,26 @@
 const db = require('./db');
 
-// 1. Clear existing reports so we start fresh every time we run this
+// Reset the database so we have a clean slate for the demo
 db.prepare('DELETE FROM reports').run();
 
-// Helper function to create timestamps for the past
-const now = new Date();
-const minutesAgo = (m) => new Date(now.getTime() - m * 60000).toISOString();
+// Helper to get a timestamp from X minutes ago
+const getPastTime = (minutes) => new Date(Date.now() - minutes * 60000).toISOString();
 
-const stmt = db.prepare(
+// Add some fake system alerts for a confirmed outage at Woodlands 1
+const insertSystemAlert = db.prepare(
   `INSERT INTO reports (building, category, timestamp, status, source)
-   VALUES (?, ?, ?, 'synced', ?)`
+   VALUES (?, ?, ?, 'synced', 'system')`
 );
 
-// 2. Insert a simulated "Confirmed Outage" for the Library (Recent)
-// We use source = 'system' to distinguish this from user reports
-stmt.run('Library', 'No Connection', minutesAgo(5), 'system');
-stmt.run('Library', 'No Connection', minutesAgo(8), 'system');
+insertSystemAlert.run('Woodlands 1', 'No Connection', getPastTime(5));
+insertSystemAlert.run('Woodlands 1', 'No Connection', getPastTime(8));
 
-// 3. Insert a "Stale" user report for Dorm A (45 minutes ago)
-// Because it is older than 30 minutes, your frontend can mark this as stale
-stmt.run('Dorm A', 'Slow', minutesAgo(45), 'user');
+// Add an older user report to test the "stale" feature on the frontend
+const insertUserReport = db.prepare(
+  `INSERT INTO reports (building, category, timestamp, status, source)
+   VALUES (?, ?, ?, 'synced', 'user')`
+);
 
-console.log('✅ Database seeded successfully with demo data!');
+insertUserReport.run('Student Union', 'Slow', getPastTime(45));
+
+console.log('Database reset. Added demo reports for Woodlands 1 and Student Union.');
