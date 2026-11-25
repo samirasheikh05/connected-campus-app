@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const BUILDINGS = ['Library', 'Dorm A', 'Dorm B', 'Student Center', 'Engineering Hall'];
+const BUILDINGS = ['Woodlands 1', 'Woodlands 2', 'Woodlands 3', 'Woodlands 4', 'Woodlands 5', 'AV', 'Campus Center', 'Student Union', 'Library'];
 
 app.get('/api/buildings', (req, res) => res.json(BUILDINGS));
 
